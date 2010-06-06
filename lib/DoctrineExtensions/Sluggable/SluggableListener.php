@@ -2,7 +2,9 @@
 
 namespace DoctrineExtensions\Sluggable;
 
-use Doctrine\ORM\Event\LifecycleEventArgs,
+use Doctrine\Common\EventArgs,
+	Doctrine\ORM\Event\LifecycleEventArgs as ORMLifecycleEventArgs,
+	Doctrine\ODM\MongoDB\Event\LifecycleEventArgs as ODMLifecycleEventArgs,
     Doctrine\Common\EventManager,
     Doctrine\ORM\Events;
 
@@ -21,15 +23,22 @@ class SluggableListener
     /**
      * prePersist
      * 
-     * @param LifecycleEventArgs $e Event
+     * @param EventArgs $e Event
      */
-    public function prePersist(LifecycleEventArgs $e)
+    public function prePersist(EventArgs $e)
     {
-        $entity = $e->getEntity();
-
-        if ($entity instanceof Sluggable) {
-            $generator = new SlugGenerator($e->getEntityManager());
-            $generator->process($entity);
-        }
+		if ($e instanceof ORMLifecycleEventArgs) {
+			$entity = $e->getEntity();
+			if ($entity instanceof Sluggable) {
+		        $generator = new SlugGenerator($e->getEntityManager());
+		        $generator->process($entity);
+		    }
+		} else if ($e instanceof ODMLifecycleEventArgs){
+			$document = $e->getDocument();
+			if ($document instanceof Sluggable) {
+		        $generator = new SlugGenerator($e->getDocumentManager());
+		        $generator->process($document);
+		    }
+		}
     }
 }
