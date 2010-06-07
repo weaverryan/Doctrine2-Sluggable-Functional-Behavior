@@ -56,7 +56,7 @@ class SlugGenerator
 		} else if ($this->_m instanceof DocumentManager) {
 			// Inspect storage for an already existent slug
 			$q = $this->_m->createQuery(get_class($entity));
-			$re = new \MongoRegex("/^".$slugCandidate."/i");
+			$re = new \MongoRegex('/^' . $this->_prepareRegEx($slugCandidate) . '/i');
 			$q->where($entity->getSlugFieldName(), $re);
 			$count = $q->count();
 			if (intval($count) > 0) {
@@ -104,4 +104,21 @@ class SlugGenerator
 		}
 		return $normalizer->normalize();
 	}
+
+	/**
+	 * Prepare a string to be used in a regular expression.
+	 *
+	 * @access protected
+	 * @param string $str
+	 * @return string
+	 */
+	protected function _prepareRegEx($str) {
+		$replace = array(
+			'\\' => '\\\\', '^' => '\^', '.' => '\.', '$' => '\$', '|' => '\|', '(' => '\(',
+			')' => '\)', '[' => '\[', ']' => '\]', '*' => '\*', '+' => '\+', '?' => '\?',
+			'{' => '\{', '}' => '\}', ',' => '\,'
+		);
+		return strtr($str, $replace);
+	}
+
 }
