@@ -6,8 +6,7 @@ require 'SluggableTestCase.php';
 
 use	Doctrine\Common\EventManager,
 		Doctrine\ORM\Events,
-		DoctrineExtensions\Sluggable\SluggableListener,
-		Bundle\ProductBundle\Documents\SimpleProduct;
+		DoctrineExtensions\Sluggable\SluggableListener;
 
 class FunctionalTest extends SluggableTestCase
 {
@@ -15,30 +14,26 @@ class FunctionalTest extends SluggableTestCase
 	private $productDoc;
 	private $productEnt;
 
-	private $documents = array(
-			'Bundle\ProductBundle\Documents\SimpleProduct',
-			);	
+	private $documents = array('DoctrineExtensions\Sluggable\SimpleProductFixture');
 
-	private $entities = array(
-			'Bundle\ProductBundle\Entities\SimpleProduct',
-			);		
+	private $entities = array('DoctrineExtensions\Sluggable\SimpleProductFixture');
 
 	protected function setUp() {
 		parent::setUp();
 		$devm = $this->getDocumentEvm();
 		$listener = new SluggableListener($devm);
 
-		$this->productDoc = new SimpleProduct();
+		$this->productDoc = new SimpleProductFixture();
 	}
 
 	protected function tearDown() {
 		parent::tearDown();
 		$this->productDoc = null;
-				
+
 		foreach ($this->documents as $document) {
 			$this->getDocumentManager()->getDocumentCollection($document)->drop();
 		}
-	  
+
 		/*
 		 $this->productEnt = null;
 		 foreach ($this->entities as $entity) {
@@ -47,7 +42,7 @@ class FunctionalTest extends SluggableTestCase
 	  */
 	}
 
-	public function testProductDocInit() {	
+	public function testProductDocInit() {
 		$this->assertNull($this->productDoc->getName());
 		$this->assertNull($this->productDoc->getWeight());
 		$testName   = 'Test Name';
@@ -62,18 +57,18 @@ class FunctionalTest extends SluggableTestCase
 
 		$dm->detach($this->productDoc);
 
-		$productRepo = $dm->getRepository('Bundle\ProductBundle\Documents\SimpleProduct');
-		$productNull = $productRepo->find('xxx');	
-		$this->assertNotEquals(get_class($productNull),'Bundle\ProductBundle\Documents\SimpleProduct');
-		$product = $productRepo->find($this->productDoc->getId());	
-		$this->assertEquals(get_class($product),'Bundle\ProductBundle\Documents\SimpleProduct');
+		$productRepo = $dm->getRepository('DoctrineExtensions\Sluggable\SimpleProductFixture');
+		$productNull = $productRepo->find('xxx');
+		$this->assertNotEquals(get_class($productNull),'DoctrineExtensions\Sluggable\SimpleProductFixture');
+		$product = $productRepo->find($this->productDoc->getId());
+		$this->assertEquals(get_class($product),'DoctrineExtensions\Sluggable\SimpleProductFixture');
 		$this->assertEquals($testName, $product->getName());
 		$this->assertEquals($testWeight, $product->getWeight());
 		$this->assertEquals($testPrice, $product->getPrice());
 	}
 
 	public function testInstanceOfSluggable() {
-		$doc = new \ReflectionClass('Bundle\ProductBundle\Documents\SimpleProduct');
+		$doc = new \ReflectionClass('DoctrineExtensions\Sluggable\SimpleProductFixture');
 		$sluggable = new \ReflectionClass('DoctrineExtensions\Sluggable\Sluggable');
 		$slugField = $this->productDoc->getSlugFieldName();
 		$slugGeneratorFields = $this->productDoc->getSlugGeneratorFields();
@@ -88,19 +83,19 @@ class FunctionalTest extends SluggableTestCase
 		$this->productDoc->setName($testName);
 		$this->productDoc->setWeight($testWeight);
 		$this->productDoc->setPrice($testPrice);
-		
+
 		$expectedSlug = 'my-name-with-spaces-54-67-10-kg';
-		
+
 		$dm = $this->getDocumentManager();
 		$dm->persist($this->productDoc);
 		$dm->flush();
-		
+
 		$dm->detach($this->productDoc);
-		
-		$productRepo = $dm->getRepository('Bundle\ProductBundle\Documents\SimpleProduct');
-		$product = $productRepo->find($this->productDoc->getId());	
+
+		$productRepo = $dm->getRepository('DoctrineExtensions\Sluggable\SimpleProductFixture');
+		$product = $productRepo->find($this->productDoc->getId());
 		$this->assertEquals($product->getSlug(),$expectedSlug);
-	}	
+	}
 
 	public function testSlugGeneratorWithStandardNonalphanumerics() {
 		$testName    = '~Mott`s, !Apple #Sauce $Green%Yellow ^not &red ';
@@ -111,21 +106,21 @@ class FunctionalTest extends SluggableTestCase
 		$this->productDoc->setName($testName);
 		$this->productDoc->setWeight($testWeight);
 		$this->productDoc->setPrice($testPrice);
-		
+
 		$expectedSlug  = 'mott-s-apple-sauce-green-yellow-not-red-30-of-1-per-pound-viscous-liquid-delicious';
 		$expectedSlug .= '-';
 		$expectedSlug .= '100';
 		$expectedSlug .= '-';
 		$expectedSlug .= 'other-groceries-carrot-peas-spinach-cucumber-strawberry-raisin-done';
-		
+
 		$dm = $this->getDocumentManager();
 		$dm->persist($this->productDoc);
 		$dm->flush();
-		
+
 		$dm->detach($this->productDoc);
-		
-		$productRepo = $dm->getRepository('Bundle\ProductBundle\Documents\SimpleProduct');
-		$product = $productRepo->find($this->productDoc->getId());	
+
+		$productRepo = $dm->getRepository('DoctrineExtensions\Sluggable\SimpleProductFixture');
+		$product = $productRepo->find($this->productDoc->getId());
 		$this->assertEquals($product->getSlug(),$expectedSlug);
 	}
 
@@ -140,21 +135,21 @@ class FunctionalTest extends SluggableTestCase
 		$this->productDoc->setWeight($testWeight);
 		$this->productDoc->setPrice($testPrice);
 		$this->productDoc->setSlugDivider($divider);
-		
+
 		$expectedSlug  = 'mott/s/apple/sauce/green/yellow/not/red/30/of/1/per/pound/viscous/liquid/delicious';
 		$expectedSlug .= '/';
 		$expectedSlug .= '100';
 		$expectedSlug .= '/';
 		$expectedSlug .= 'other/groceries/carrot/peas/spinach/cucumber/strawberry/raisin/done';
-		
+
 		$dm = $this->getDocumentManager();
 		$dm->persist($this->productDoc);
 		$dm->flush();
-		
+
 		$dm->detach($this->productDoc);
-		
-		$productRepo = $dm->getRepository('Bundle\ProductBundle\Documents\SimpleProduct');
-		$product = $productRepo->find($this->productDoc->getId());	
+
+		$productRepo = $dm->getRepository('DoctrineExtensions\Sluggable\SimpleProductFixture');
+		$product = $productRepo->find($this->productDoc->getId());
 		$this->assertEquals($product->getSlug(),$expectedSlug);
 	}
 

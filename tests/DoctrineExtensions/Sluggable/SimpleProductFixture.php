@@ -1,14 +1,12 @@
 <?php
 
-namespace Bundle\ProductBundle\Documents;
-
-use DoctrineExtensions\Sluggable\Sluggable;
+namespace DoctrineExtensions\Sluggable;
 
 /**
  * @Document(db="test_doctrine_ext_sluggable", collection="products")
  * @HasLifecycleCallbacks
  */
-class SimpleProduct implements Sluggable
+class SimpleProductFixture implements Sluggable
 {
 
 	/** @Id */
@@ -55,7 +53,7 @@ class SimpleProduct implements Sluggable
 		$this->price = (float) $price;
 		return $this;
 	}
-	
+
 	public function getPrice() {
 		return $this->price;
 	}
