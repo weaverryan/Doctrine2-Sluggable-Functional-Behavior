@@ -38,8 +38,7 @@ class SlugGenerator
 		// Generate slug candidate
 		$slugCandidate = $this->_getSlugCandidate($class, $entity);
 
-		if ($this->_m instanceof EntityManager) {			
-
+		if ($this->_m instanceof EntityManager) {
 			// Inspect storage for an already existent slug
 			$qb = $this->_m->createQueryBuilder();
 			$qb->select('COUNT(c.' . $entity->getSlugFieldName() . ')')
@@ -56,7 +55,7 @@ class SlugGenerator
 		} else if ($this->_m instanceof DocumentManager) {
 			// Inspect storage for an already existent slug
 			$q = $this->_m->createQuery(get_class($entity));
-			$re = new \MongoRegex('/^' . $this->_prepareRegEx($slugCandidate) . '/i');
+			$re = new \MongoRegex('/^' . preg_quote($slugCandidate, '/') . '/i');
 			$q->where($entity->getSlugFieldName(), $re);
 			$count = $q->count();
 			if (intval($count) > 0) {
@@ -104,21 +103,4 @@ class SlugGenerator
 		}
 		return $normalizer->normalize();
 	}
-
-	/**
-	 * Prepare a string to be used in a regular expression.
-	 *
-	 * @access protected
-	 * @param string $str
-	 * @return string
-	 */
-	protected function _prepareRegEx($str) {
-		$replace = array(
-			'\\' => '\\\\', '^' => '\^', '.' => '\.', '$' => '\$', '|' => '\|', '(' => '\(',
-			')' => '\)', '[' => '\[', ']' => '\]', '*' => '\*', '+' => '\+', '?' => '\?',
-			'{' => '\{', '}' => '\}', ',' => '\,'
-		);
-		return strtr($str, $replace);
-	}
-
 }
