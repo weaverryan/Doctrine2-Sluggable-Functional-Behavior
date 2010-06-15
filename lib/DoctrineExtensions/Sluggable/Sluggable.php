@@ -5,11 +5,18 @@ namespace DoctrineExtensions\Sluggable;
 interface Sluggable
 {
     /**
-     * Retrieves the Entity slug field name
+     * Retrieves the slug field name
      *
      * @return string
      */
     function getSlugFieldName();
+
+    /**
+     * Retrieves the slug
+     *
+     * @return string
+     */
+    function getSlug();
 
     /**
      * Retrieves the Entity fields used to generate the slug value
