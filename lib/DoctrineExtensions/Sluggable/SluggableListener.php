@@ -32,8 +32,6 @@ class SluggableListener
 
         if (isset($sluggable) && $sluggable->getSlug() === null) {
             $this->getGenerator($e)->process($sluggable);
-            $changeset = $e->getDocumentChangeSet();
-            $changeset[$sluggable->getSlugFieldName()] = array(null, $sluggable->getSlug());
         }
     }
     /**
@@ -47,8 +45,6 @@ class SluggableListener
 
         if (isset($sluggable)) {
             $this->getGenerator($e)->process($sluggable);
-            $changeset = $e->getDocumentChangeSet();
-            $changeset[$sluggable->getSlugFieldName()] = array(null, $sluggable->getSlug());
         }
     }
 
