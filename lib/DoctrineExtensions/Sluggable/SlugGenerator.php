@@ -25,7 +25,7 @@ class SlugGenerator
 	}
 
 	/**
-	 * Process an entity and generate a unique slug in the desierd field.
+	 * Process an entity and generate a unique slug on the desired field.
 	 *
 	 * @todo The way we generate the slug is not optimal. It must be needed to deal with concurrency.
 	 * @param Sluggable $entity Entity to be processed (implements Sluggable interface)
@@ -56,7 +56,7 @@ class SlugGenerator
 			// Inspect storage for an already existent slug
 			$q = $this->_m->createQuery(get_class($entity));
 			$re = new \MongoRegex('/^' . preg_quote($slugCandidate, '/') . '/i');
-			$q->where($entity->getSlugFieldName(), $re);
+			$q->field($entity->getSlugFieldName())->equals($re);
 			$count = $q->count();
 			if (intval($count) > 0) {
 				$slugCandidate .= '-' . $count;
