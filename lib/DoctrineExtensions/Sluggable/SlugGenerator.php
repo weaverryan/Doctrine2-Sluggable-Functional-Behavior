@@ -56,7 +56,7 @@ class SlugGenerator
 			// Inspect storage for an already existent slug
 			$q = $this->_m->createQuery(get_class($entity));
 			$re = new \MongoRegex('/^' . preg_quote($slugCandidate, '/') . '/i');
-			$q->where($entity->getSlugFieldName(), $re);
+			$q->field($entity->getSlugFieldName())->equals($re);
 			$count = $q->count();
 			if (intval($count) > 0) {
 				$slugCandidate .= '-' . $count;
