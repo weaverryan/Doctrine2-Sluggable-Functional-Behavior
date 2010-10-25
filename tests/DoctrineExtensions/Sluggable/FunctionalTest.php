@@ -14,9 +14,9 @@ class FunctionalTest extends SluggableTestCase
 	private $productDoc;
 	private $productEnt;
 
-	private $documents = array('DoctrineExtensions\Sluggable\SimpleProductFixture');
+	private $documents = array('DoctrineExtensions\Sluggable\SimpleProductFixture', 'DoctrineExtensions\Sluggable\TestDocument');
 
-	private $entities = array('DoctrineExtensions\Sluggable\SimpleProductFixture');
+	private $entities = array('DoctrineExtensions\Sluggable\SimpleProductFixture', 'DoctrineExtensions\Sluggable\TestDocument');
 
 	protected function setUp() {
 		parent::setUp();
@@ -151,6 +151,26 @@ class FunctionalTest extends SluggableTestCase
 		$productRepo = $dm->getRepository('DoctrineExtensions\Sluggable\SimpleProductFixture');
 		$product = $productRepo->find($this->productDoc->getId());
 		$this->assertEquals($product->getSlug(),$expectedSlug);
+	}
+
+	public function testSimpleSlugCollision() {
+		$dm = $this->getDocumentManager();
+		$doc1 = new TestDocument();
+		$doc1->slug = 'slug';
+		$doc2 = new TestDocument();
+		$doc2->slug = 'slug-2';
+		$doc3 = new TestDocument();
+		$doc3->slug = 'slug';
+		$dm->persist($doc1);
+		$dm->flush(array('safe' => true));
+		$dm->persist($doc2);
+		$dm->flush(array('safe' => true));
+		$dm->persist($doc3);
+		$dm->flush(array('safe' => true));
+
+		$this->assertEquals('slug', $doc1->slug);
+		$this->assertEquals('slug-2', $doc2->slug);
+		$this->assertEquals('slug-3', $doc3->slug);
 	}
 
 }
