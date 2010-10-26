@@ -2,8 +2,8 @@
 
 namespace DoctrineExtensions\Sluggable;
 
-require '../../../../autoload.php';
 require 'SimpleProductFixture.php';
+require 'TestDocument.php';
 //require 'SimpleProductFixture.php';
 
 use Doctrine\Common\ClassLoader,

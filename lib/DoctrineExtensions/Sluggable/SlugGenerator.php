@@ -53,18 +53,27 @@ class SlugGenerator
 			}
 
 		} else if ($this->_m instanceof DocumentManager) {
-			// Inspect storage for an already existent slug
-			$q = $this->_m->createQuery(get_class($entity));
-			$re = new \MongoRegex('/^' . preg_quote($slugCandidate, '/') . '/i');
-			$q->field($entity->getSlugFieldName())->equals($re);
-			$count = $q->count();
-			if (intval($count) > 0) {
-				$slugCandidate .= '-' . $count;
+			$tempCandidate = $slugCandidate;
+			$count = $this->getSlugCandidateCount($slugCandidate, $entity);
+			while ($this->getSlugCandidateCount($slugCandidate, $entity) > 0) {
+				$slugCandidate = $tempCandidate . '-' . $count++;
 			}
 		}
 
 		// Assign slug value into entity
 		$class->setFieldValue($entity, $entity->getSlugFieldName(), $slugCandidate);
+	}
+
+	/**
+	 * Get slug entry count
+	 *
+	 * @param string $slugCandidate
+	 * @return int
+	 */
+	private function getSlugCandidateCount($slugCandidate, $entity) {
+		return count($this->_m->find(get_class($entity), array(
+			$entity->getSlugFieldName() => new \MongoRegex('/^' . preg_quote($slugCandidate, '/') . '/i'),
+		)));
 	}
 
 	/**
