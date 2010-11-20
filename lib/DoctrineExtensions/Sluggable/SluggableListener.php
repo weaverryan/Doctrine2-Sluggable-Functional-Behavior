@@ -3,10 +3,7 @@
 namespace DoctrineExtensions\Sluggable;
 
 use Doctrine\Common\EventArgs,
-	Doctrine\ORM\Event\LifecycleEventArgs as ORMLifecycleEventArgs,
-	Doctrine\ODM\MongoDB\Event\LifecycleEventArgs as ODMLifecycleEventArgs,
-    Doctrine\Common\EventManager,
-    Doctrine\ORM\Events;
+    Doctrine\Common\EventManager;
 
 class SluggableListener
 {
@@ -17,8 +14,18 @@ class SluggableListener
      */
     public function __construct(EventManager $evm)
     {
-        $evm->addEventListener(Events::prePersist, $this);
-        $evm->addEventListener(Events::preUpdate, $this);
+        if (class_exists('\Doctrine\ORM\Events'))
+        {
+            $evm->addEventListener(\Doctrine\ORM\Events::prePersist, $this);
+            $evm->addEventListener(\Doctrine\ORM\Events::preUpdate, $this);
+        }
+        else
+        {
+            $evm->addEventListener(\Doctrine\ODM\MongoDB\ODMEvents::prePersist, $this);
+            $evm->addEventListener(\Doctrine\ODM\MongoDB\ODMEvents::preUpdate, $this);
+        }
+
+
     }
 
     /**
@@ -50,7 +57,7 @@ class SluggableListener
 
     protected function getSluggable(EventArgs $e) {
         // ORM Entities
-        if ($e instanceof ORMLifecycleEventArgs) {
+        if ($e instanceof \Doctrine\ORM\Event\LifecycleEventArgs) {
             $entity = $e->getEntity();
             if ($entity instanceof Sluggable) {
                 return $entity;
@@ -58,7 +65,7 @@ class SluggableListener
         }
 
         // ODM Documents
-        if ($e instanceof ODMLifecycleEventArgs){
+        if ($e instanceof \Doctrine\ODM\MongoDB\Event\LifecycleEventArgs){
             $document = $e->getDocument();
             if ($document instanceof Sluggable) {
                 return $document;
@@ -69,9 +76,9 @@ class SluggableListener
     }
 
     protected function getGenerator(EventArgs $e) {
-     	  if ($e instanceof ORMLifecycleEventArgs) {
+     	  if ($e instanceof \Doctrine\ORM\Event\LifecycleEventArgs) {
             return new SlugGenerator($e->getEntityManager());
-		  } else if ($e instanceof ODMLifecycleEventArgs){
+		  } else if ($e instanceof \Doctrine\ODM\MongoDB\Event\LifecycleEventArgs){
             return new SlugGenerator($e->getDocumentManager());
         }
     }
