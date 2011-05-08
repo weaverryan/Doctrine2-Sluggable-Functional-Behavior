@@ -21,8 +21,8 @@ class SluggableListener
         }
         else
         {
-            $evm->addEventListener(\Doctrine\ODM\MongoDB\ODMEvents::prePersist, $this);
-            $evm->addEventListener(\Doctrine\ODM\MongoDB\ODMEvents::preUpdate, $this);
+            $evm->addEventListener(\Doctrine\ODM\MongoDB\Events::prePersist, $this);
+            $evm->addEventListener(\Doctrine\ODM\MongoDB\Events::preUpdate, $this);
         }
 
 
